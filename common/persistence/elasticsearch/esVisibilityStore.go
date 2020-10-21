@@ -52,7 +52,7 @@ const (
 
 type (
 	esVisibilityStore struct {
-		esClient es.GenericElasticSearch
+		esClient es.GenericClient
 		index    string
 		producer messaging.Producer
 		logger   log.Logger
@@ -64,7 +64,7 @@ var _ p.VisibilityStore = (*esVisibilityStore)(nil)
 
 // NewElasticSearchVisibilityStore create a visibility store connecting to ElasticSearch
 func NewElasticSearchVisibilityStore(
-	esClient es.GenericElasticSearch,
+	esClient es.GenericClient,
 	index string,
 	producer messaging.Producer,
 	config *config.VisibilityConfig,
@@ -338,10 +338,10 @@ func (v *esVisibilityStore) GetClosedWorkflowExecution(
 	ctx context.Context,
 	request *p.InternalGetClosedWorkflowExecutionRequest,
 ) (*p.InternalGetClosedWorkflowExecutionResponse, error) {
-	resp, err := v.esClient.GetClosedWorkflowExecution(ctx, v.index, request)
+	resp, err := v.esClient.SearchForOneClosedExecution(ctx, v.index, request)
 	if err != nil {
 		return nil, &workflow.InternalServiceError{
-			Message: fmt.Sprintf("GetClosedWorkflowExecution failed, %v", err),
+			Message: fmt.Sprintf("SearchForOneClosedExecution failed, %v", err),
 		}
 	}
 	return resp, nil
